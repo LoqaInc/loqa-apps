@@ -82,3 +82,58 @@ compile command, and unchanged-lock check inspected. `git diff --check` passed.
 No local Rust compilation or heavyweight battery ran. At carrier preparation,
 hosted compilation and an independent review are pending. A later passing run
 must be bound to the reviewed source and actual toolchain before acceptance.
+
+## 2026-11-07 — exact #18 and #20 patch carrier
+
+This candidate starts from accepted master
+`dbcfed742d82456db096cd84df526f1ccfaa4565` and covers only these originals:
+
+| Original | Requested update | Exact source commit |
+| --- | --- | --- |
+| [#18](https://github.com/LoqaInc/loqa-apps/pull/18) | tar 0.4.44 to 0.4.46 | `f937aaef2a3e16aaed16960e8e10005d58b3c18d` |
+| [#20](https://github.com/LoqaInc/loqa-apps/pull/20) | rustls-webpki 0.103.9 to 0.103.16 | `0ba6608417e7819da38b28bae055c1e47b582516` |
+
+The entire independent lockfile diffs are applied without Cargo regeneration.
+Their SHA-256 hashes are respectively
+`d1ed8d687669036968e9f7456a9471f6125ddd11d64273c5ff0a510565b4d34e`
+and `8f50bdac05249d1c4f38eb69d7e4f990dbeb88fbd655e8d351a391cdfaee4170`.
+The source lock blobs are respectively
+`e41bb52dd15081a3b11ed30f7aa1e82f49a374f7` and
+`09dc3d3789c3373f41e115eebcb499f2f85457f0`.
+
+Full #18 coverage also preserves these seven dependency-edge substitutions;
+the named packages keep their original versions and checksums:
+
+| Package | Original windows-sys edge | Candidate windows-sys edge |
+| --- | --- | --- |
+| dirs-sys 0.5.0 | 0.61.2 | 0.59.0 |
+| errno 0.3.14 | 0.61.2 | 0.52.0 |
+| os_pipe 1.2.3 | 0.61.2 | 0.45.0 |
+| rustix 1.1.4 | 0.61.2 | 0.52.0 |
+| rustls-platform-verifier 0.6.2 | 0.61.2 | 0.52.0 |
+| tempfile 3.26.0 | 0.61.2 | 0.52.0 |
+| winapi-util 0.1.11 | 0.61.2 | 0.52.0 |
+
+#20 changes only rustls-webpki's version/checksum; all its edges are preserved.
+Parsed TOML records and raw package blocks equal the complete original union:
+11 changed package identities across nine names, with all 598 untouched base
+records byte-identical. All 1,956 dependency references resolve uniquely among
+607 packages; registry entries retain well-formed checksum fields. The combined
+LF Cargo.lock SHA-256 is
+`b7febd692ad37aa4390670005f4271bd30a7233a41938e56863de4a5c38e2f78`.
+The manifest, application source/configuration, npm inputs and existing Windows
+compile workflow are unchanged. #19 is excluded; Tauri remains 2.10.2.
+
+Keeping #18 and #20 together preserves both original patch requests while the
+separate #19 configured-origin IPC compatibility diagnosis continues. These
+static checks do not validate transitive ranges/features, archive contents,
+compiler/MSRV compatibility, TLS distrust behavior or runtime exposure. The
+pre-1.0 Windows edge changes require the existing hosted locked all-target
+Windows compile; rustls-webpki 0.103.16's selected-intermediate distrust behavior
+also cannot be established by compilation alone.
+
+At preparation this is production round 1, pending independent full-diff review
+and hosted compile evidence bound to the reviewed source and actual toolchain.
+No local compilation, tests, application session or production request ran.
+Original refs and the prior provenance history are preserved. This entry makes
+no original-PR disposition, remote retention or runtime acceptance claim.
