@@ -1,0 +1,41 @@
+name: Rust compile
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - 'src-tauri/**'
+      - '.github/workflows/rust-compile.yml'
+  push:
+    branches: [master, 'mergify/merge-queue/**']
+    paths:
+      - 'src-tauri/**'
+      - '.github/workflows/rust-compile.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    name: Windows locked Rust compile
+    runs-on: windows-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Install the project's stable Rust toolchain
+        run: rustup toolchain install stable --profile minimal --target x86_64-pc-windows-msvc
+      - name: Record toolchain and source
+        run: |
+          rustc +stable --version --verbose
+          cargo +stable --version
+          git rev-parse HEAD
+          git rev-parse HEAD:src-tauri/Cargo.lock
+      - name: Compile all Windows targets using the exact lock
+        run: cargo +stable build --manifest-path src-tauri/Cargo.toml --locked --all-targets --target x86_64-pc-windows-msvc
+      - name: Confirm compilation did not rewrite dependency inputs
+        run: git diff --exit-code -- src-tauri/Cargo.toml src-tauri/Cargo.lock
